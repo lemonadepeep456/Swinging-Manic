@@ -8,6 +8,9 @@ TagManager:
   - Gem
   - Enemy
   - PowerUp
+  - Crank
+  - Selected
+  - Rope
   layers:
   - Default
   - TransparentFX

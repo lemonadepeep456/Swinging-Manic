@@ -20,10 +20,10 @@ public class GameManagerScript : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if (timer >= 300)
-        {
-            playerLost = true;
-        }
+       // if (timer >= 300)
+       // {
+        //    playerLost = true;
+        //}
 
         if (isGameOver == false)
         {
