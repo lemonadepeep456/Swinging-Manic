@@ -46,6 +46,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   score: 0
   timer: 0
+  player: {fileID: 0}
+  playerTransform: {fileID: 0}
+  respawnPosition: {fileID: 0}
   isGameOver: 0
   playerWon: 0
   playerLost: 0
+  voidY: -10

@@ -205,20 +205,15 @@ public class PlayerGreenScript : MonoBehaviour
 
                 GetComponent<Rigidbody2D>().AddForce(jumpForce);
             }
-        
+
 
 
             // ====================================================
             // FALL CHECK
             // ====================================================
-
-            if (GetComponent<Transform>().position.y <= -10f)
+            if (GetComponent<Transform>().position.y <= -20f)
             {
-                gameManagerObject
-                    .GetComponent<GameManagerScript>()
-                    .playerLost = true;
-
-                Destroy(gameObject);
+                gameManagerObject.GetComponent<GameManagerScript>().playerLost = true;
             }
 
 
