@@ -24,12 +24,12 @@ public class PlayerGreenScript : MonoBehaviour
     public bool isJumping;
     public bool isOnGround;
     public bool LeapCooldown;
-
+   
     public float timer;
 
     public GameObject gameManagerObject;
     public Animator playerAnimator;
-
+    public SpriteRenderer spriteRenderer;
 
     // ============================================================
     // ROPE VARIABLES
@@ -44,13 +44,22 @@ public class PlayerGreenScript : MonoBehaviour
 
     public Transform attachedTo;
 
+    // Player hand holders
+    public Transform leftHandHolder;
+    public Transform rightHandHolder;
+
+    // The holder currently being used
+    private Transform currentHandHolder;
+
+
+
 
     // ============================================================
     // ROPE REATTACH COOLDOWN
     // ============================================================
 
-    public float ropeReattachCooldown = 0.5f;
-
+   
+    public float ropeReattachCooldown = 0.3f;
     private float ropeCooldownTimer = 0f;
 
 
@@ -196,32 +205,7 @@ public class PlayerGreenScript : MonoBehaviour
 
                 GetComponent<Rigidbody2D>().AddForce(jumpForce);
             }
-
-
-            // ====================================================
-            // PROJECTILE
-            // ====================================================
-
-            if (playerFacing == 1)
-            {
-                Instantiate(
-                    rightProjectilePrefab,
-                    GetComponent<Transform>().position +
-                    rightProjectileOffset,
-                    Quaternion.identity
-                );
-            }
-
-
-            if (playerFacing == -1)
-            {
-                Instantiate(
-                    leftProjectilePrefab,
-                    GetComponent<Transform>().position +
-                    leftProjectileOffset,
-                    Quaternion.identity
-                );
-            }
+        
 
 
             // ====================================================
@@ -253,6 +237,34 @@ public class PlayerGreenScript : MonoBehaviour
                 Debug.Log("Jumping!");
             }
         }
+        // ====================================================
+        // PROJECTILE
+        // ====================================================
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            if (playerFacing == 1)
+            {
+                Instantiate(
+                    rightProjectilePrefab,
+                    GetComponent<Transform>().position +
+                    rightProjectileOffset,
+                    Quaternion.identity
+                );
+            }
+
+
+            if (playerFacing == -1)
+            {
+                Instantiate(
+                    leftProjectilePrefab,
+                    GetComponent<Transform>().position +
+                    leftProjectileOffset,
+                    Quaternion.identity
+                );
+            }
+
+        }
 
 
         // ========================================================
@@ -268,71 +280,7 @@ public class PlayerGreenScript : MonoBehaviour
             Debug.Log("DoubleJumping!");
         }
 
-
-        // ========================================================
-        // LEFT LEAP
-        // ========================================================
-
-        IEnumerator LeapingLeft()
-        {
-            GetComponent<Animator>().Play("PlayerLeap");
-
-            leftMoveForce.x += -150f;
-
-            jumpForce.y += 300f;
-
-            isOnGround = false;
-
-            LeapCooldown = true;
-
-            yield return new WaitForSeconds(1f);
-
-            GetComponent<Animator>().Play("PlayerIdle");
-
-            leftMoveForce.x += 150f;
-
-            jumpForce.y -= 300f;
-
-            isOnGround = true;
-
-            Debug.Log("Leaping");
-
-            LeapCooldown = false;
-        }
-
-
-        // ========================================================
-        // RIGHT LEAP
-        // ========================================================
-
-        IEnumerator LeapingRight()
-        {
-            GetComponent<Animator>().Play("PlayerLeap");
-
-            rightMoveForce.x += 150f;
-
-            isOnGround = false;
-
-            LeapCooldown = true;
-
-            jumpForce.y += 300f;
-
-            yield return new WaitForSeconds(1f);
-
-            GetComponent<Animator>().Play("PlayerIdle");
-
-            rightMoveForce.x -= 150f;
-
-            jumpForce.y -= 300f;
-
-            isOnGround = true;
-
-            Debug.Log("Leaping");
-
-            LeapCooldown = false;
-        }
-
-
+     
         // ========================================================
         // DOUBLE JUMP INPUT
         // ========================================================
@@ -344,32 +292,7 @@ public class PlayerGreenScript : MonoBehaviour
         }
 
 
-        // ========================================================
-        // LEFT LEAP INPUT
-        // ========================================================
-
-        if (Input.GetKeyDown(KeyCode.W) &&
-            (Input.GetKey(KeyCode.A) &&
-            LeapCooldown == false))
-        {
-            StartCoroutine(LeapingLeft());
-
-            GetComponent<Rigidbody2D>().AddForce(leftMoveForce);
-        }
-
-
-        // ========================================================
-        // RIGHT LEAP INPUT
-        // ========================================================
-
-        if (Input.GetKeyDown(KeyCode.W) &&
-            (Input.GetKey(KeyCode.D) &&
-            LeapCooldown == false))
-        {
-            StartCoroutine(LeapingRight());
-
-            GetComponent<Rigidbody2D>().AddForce(rightMoveForce);
-        }
+   
     }
 
 
@@ -379,39 +302,46 @@ public class PlayerGreenScript : MonoBehaviour
 
     private void CheckRopeControls()
     {
-        // --------------------------------------------------------
+        // ============================================================
         // SWING LEFT
-        // --------------------------------------------------------
+        // ============================================================
 
         if (Input.GetKey(KeyCode.A) ||
             Input.GetKey(KeyCode.LeftArrow))
         {
             playerFacing = -1;
+            playerAnimator.Play("PlayerRope");
+            spriteRenderer.flipX = true;
 
             rb.AddRelativeForce(
                 Vector2.left * ropeSwingForce
             );
+
+            SwitchToLeftSide();
         }
 
 
-        // --------------------------------------------------------
+        // ============================================================
         // SWING RIGHT
-        // --------------------------------------------------------
+        // ============================================================
 
         if (Input.GetKey(KeyCode.D) ||
             Input.GetKey(KeyCode.RightArrow))
         {
             playerFacing = 1;
-
+            playerAnimator.Play("PlayerRope");
+            spriteRenderer.flipX = false;
             rb.AddRelativeForce(
                 Vector2.right * ropeSwingForce
             );
+
+            SwitchToRightSide();
         }
 
 
-        // --------------------------------------------------------
+        // ============================================================
         // CLIMB UP
-        // --------------------------------------------------------
+        // ============================================================
 
         if (Input.GetKey(KeyCode.W) ||
             Input.GetKey(KeyCode.UpArrow))
@@ -420,9 +350,9 @@ public class PlayerGreenScript : MonoBehaviour
         }
 
 
-        // --------------------------------------------------------
+        // ============================================================
         // CLIMB DOWN
-        // --------------------------------------------------------
+        // ============================================================
 
         if (Input.GetKey(KeyCode.S) ||
             Input.GetKey(KeyCode.DownArrow))
@@ -431,16 +361,114 @@ public class PlayerGreenScript : MonoBehaviour
         }
 
 
-        // --------------------------------------------------------
+        // ============================================================
         // DETACH
-        // --------------------------------------------------------
+        // ============================================================
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Detach();
+            playerAnimator.Play("PlayerLeap");
         }
     }
+    private void SwitchToLeftSide()
+    {
+        if (!isAttached)
+        {
+            return;
+        }
 
+        if (leftHandHolder == null)
+        {
+            return;
+        }
+
+        if (hingeJoint == null ||
+            hingeJoint.connectedBody == null)
+        {
+            return;
+        }
+
+        currentHandHolder = leftHandHolder;
+
+        Vector3 ropePosition =
+            hingeJoint.connectedBody.transform.position;
+
+        float distanceFromRope =
+            Mathf.Abs(
+                transform.position.x - ropePosition.x
+            );
+
+        distanceFromRope =
+            Mathf.Max(distanceFromRope, 0.25f);
+
+        Vector3 newPosition =
+            transform.position;
+
+        newPosition.x =
+            ropePosition.x - distanceFromRope;
+
+        transform.position =
+            newPosition;
+
+        Vector3 localHolderPosition =
+            transform.InverseTransformPoint(
+                currentHandHolder.position
+            );
+
+        hingeJoint.anchor =
+            localHolderPosition;
+    }
+
+
+    private void SwitchToRightSide()
+    {
+        if (!isAttached)
+        {
+            return;
+        }
+
+        if (rightHandHolder == null)
+        {
+            return;
+        }
+
+        if (hingeJoint == null ||
+            hingeJoint.connectedBody == null)
+        {
+            return;
+        }
+
+        currentHandHolder = rightHandHolder;
+
+        Vector3 ropePosition =
+            hingeJoint.connectedBody.transform.position;
+
+        float distanceFromRope =
+            Mathf.Abs(
+                transform.position.x - ropePosition.x
+            );
+
+        distanceFromRope =
+            Mathf.Max(distanceFromRope, 0.25f);
+
+        Vector3 newPosition =
+            transform.position;
+
+        newPosition.x =
+            ropePosition.x + distanceFromRope;
+
+        transform.position =
+            newPosition;
+
+        Vector3 localHolderPosition =
+            transform.InverseTransformPoint(
+                currentHandHolder.position
+            );
+
+        hingeJoint.anchor =
+            localHolderPosition;
+    }
 
     // ============================================================
     // ROPE DETECTION
@@ -492,17 +520,14 @@ public class PlayerGreenScript : MonoBehaviour
             return;
         }
 
-
         if (isAttached)
         {
             return;
         }
 
-
         // Get RopeSegment script
         RopeSegment ropeSegment =
             ropeBone.GetComponent<RopeSegment>();
-
 
         if (ropeSegment == null)
         {
@@ -514,15 +539,67 @@ public class PlayerGreenScript : MonoBehaviour
         }
 
 
-        // Tell rope segment player is attached
+        // ============================================================
+        // CHOOSE WHICH HAND HOLDS THE ROPE
+        // ============================================================
+
+        if (playerFacing == 1)
+        {
+            // Player facing RIGHT
+            currentHandHolder = rightHandHolder;
+            playerAnimator.Play("PlayerRope");
+            spriteRenderer.flipX = false;
+        }
+        else
+        {
+            // Player facing LEFT
+            currentHandHolder = leftHandHolder;
+            playerAnimator.Play("PlayerRope");
+            spriteRenderer.flipX = true;
+        }
+
+
+        // Make sure the correct holder exists
+        if (currentHandHolder == null)
+        {
+            Debug.LogWarning(
+                "Player hand holder has not been assigned!"
+            );
+
+            return;
+        }
+
+
+        // ============================================================
+        // TELL ROPE SEGMENT PLAYER IS ATTACHED
+        // ============================================================
+
         ropeSegment.isPlayerAttached = true;
 
 
-        // Connect player hinge to rope
+        // ============================================================
+        // CONNECT PLAYER TO ROPE
+        // ============================================================
+
         hingeJoint.connectedBody = ropeBone;
 
 
-        // Enable hinge
+        // ============================================================
+        // USE HAND HOLDER AS PLAYER'S HINGE ANCHOR
+        // ============================================================
+
+        Vector3 localHolderPosition =
+            transform.InverseTransformPoint(
+                currentHandHolder.position
+            );
+
+        hingeJoint.anchor = localHolderPosition;
+
+
+        // ============================================================
+        // ENABLE HINGE
+        // ============================================================
+
         hingeJoint.enabled = true;
 
 
@@ -534,9 +611,72 @@ public class PlayerGreenScript : MonoBehaviour
         attachedTo = ropeBone.transform.parent;
 
 
-        Debug.Log("Player attached to rope.");
+        Debug.Log(
+            "Player attached to rope using " +
+            currentHandHolder.name
+        );
     }
+    private void SwitchRopeSide()
+    {
+        if (!isAttached)
+        {
+            return;
+        }
 
+
+        // Make sure both holders exist
+        if (leftHandHolder == null ||
+            rightHandHolder == null)
+        {
+            Debug.LogWarning(
+                "Left and Right Hand Holders must be assigned!"
+            );
+
+            return;
+        }
+
+
+        // ============================================================
+        // SWITCH FROM RIGHT HAND TO LEFT HAND
+        // ============================================================
+
+        if (currentHandHolder == rightHandHolder)
+        {
+            currentHandHolder = leftHandHolder;
+        }
+
+
+        // ============================================================
+        // SWITCH FROM LEFT HAND TO RIGHT HAND
+        // ============================================================
+
+        else
+        {
+            currentHandHolder = rightHandHolder;
+        }
+
+
+        // ============================================================
+        // UPDATE THE HINGE ANCHOR
+        // ============================================================
+
+        Vector3 localHolderPosition =
+            transform.InverseTransformPoint(
+                currentHandHolder.position
+            );
+
+        hingeJoint.anchor = localHolderPosition;
+
+
+        // Make sure the hinge stays connected
+        hingeJoint.enabled = true;
+
+
+        Debug.Log(
+            "Switched to " +
+            currentHandHolder.name
+        );
+    }
 
     // ============================================================
     // DETACH FROM ROPE
