@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1742688307138368511}
   - component: {fileID: 3694079621470024720}
   m_Layer: 0
-  m_Name: discRed
+  m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 0a00ec176174d8f43b3ec2514b5cd98f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 78e9b36f985c32842a369b0ad516135b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -97,14 +97,14 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.34, y: 0.35}
+    oldSize: {x: 0.85714287, y: 0.85714287}
     newSize: {x: 0.34, y: 0.35}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -125,9 +125,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e223022cc0fbbf4aad057081329f7a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectileMove: {x: 0.05, y: 0, z: 0}
-  projectileTimer: 0
-  gameManagerObject: {fileID: 0}
+  speed: 10
+  damage: 1
+  enemy: {fileID: 0}
 --- !u!50 &3694079621470024720
 Rigidbody2D:
   serializedVersion: 4

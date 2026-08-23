@@ -10,10 +10,7 @@ public class PlayerGreenScript : MonoBehaviour
     public Vector3 rightMoveForce;
     public Vector3 jumpForce;
 
-    public GameObject leftProjectilePrefab;
     public GameObject rightProjectilePrefab;
-
-    public Vector3 leftProjectileOffset;
     public Vector3 rightProjectileOffset;
 
     public int playerFacing;
@@ -24,19 +21,22 @@ public class PlayerGreenScript : MonoBehaviour
     public bool isJumping;
     public bool isOnGround;
     public bool LeapCooldown;
-   
+   public Transform respawnPosition;
+   public Transform respawnFlagTransform;
+    
     public float timer;
 
     public GameObject gameManagerObject;
     public Animator playerAnimator;
     public SpriteRenderer spriteRenderer;
+    public GameManagerScript gameManagerScript;
 
     // ============================================================
     // ROPE VARIABLES
     // ============================================================
 
     public Rigidbody2D rb;
-    public HingeJoint2D hingeJoint;
+    public new HingeJoint2D hingeJoint;
 
     public float ropeSwingForce = 10f;
 
@@ -58,7 +58,7 @@ public class PlayerGreenScript : MonoBehaviour
     // ROPE REATTACH COOLDOWN
     // ============================================================
 
-   
+
     public float ropeReattachCooldown = 0.3f;
     private float ropeCooldownTimer = 0f;
 
@@ -72,11 +72,14 @@ public class PlayerGreenScript : MonoBehaviour
         isWalking = false;
         isOnGround = false;
         LeapCooldown = false;
-
+        
         leftMoveForce.x = -5f;
         rightMoveForce.x = 5f;
         jumpForce.y = 400f;
 
+        gameManagerScript = gameManagerObject.GetComponent<GameManagerScript>();
+      //  respawnPosition = gameManagerScript.respawnPosition;
+       // respawnFlagTransform = gameManagerScript.respawnFlagTransform;
 
         // Get Rigidbody2D
         rb = GetComponent<Rigidbody2D>();
@@ -126,6 +129,12 @@ public class PlayerGreenScript : MonoBehaviour
         if (isAttached)
         {
             CheckRopeControls();
+
+            // Allow shooting while on the rope
+            if (Input.GetMouseButtonDown(0))
+            {
+                ShootProjectile();
+            }
 
             return;
         }
@@ -236,29 +245,16 @@ public class PlayerGreenScript : MonoBehaviour
         // PROJECTILE
         // ====================================================
 
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetMouseButtonDown(0))
+
         {
-            if (playerFacing == 1)
-            {
-                Instantiate(
-                    rightProjectilePrefab,
-                    GetComponent<Transform>().position +
-                    rightProjectileOffset,
-                    Quaternion.identity
-                );
-            }
+            ShootProjectile();
 
-
-            if (playerFacing == -1)
-            {
-                Instantiate(
-                    leftProjectilePrefab,
-                    GetComponent<Transform>().position +
-                    leftProjectileOffset,
-                    Quaternion.identity
-                );
-            }
-
+        }
+        if (Input.GetMouseButtonDown(0) && isAttached == true && (Input.GetKey(KeyCode.D) || (Input.GetMouseButtonDown(0) && isAttached == true && (Input.GetKey(KeyCode.A)))))
+        {
+            ShootProjectile();
+            playerAnimator.Play("PlayerHoldingGun");
         }
 
 
@@ -275,7 +271,7 @@ public class PlayerGreenScript : MonoBehaviour
             Debug.Log("DoubleJumping!");
         }
 
-     
+
         // ========================================================
         // DOUBLE JUMP INPUT
         // ========================================================
@@ -287,9 +283,58 @@ public class PlayerGreenScript : MonoBehaviour
         }
 
 
-   
-    }
 
+    }
+    private void ShootProjectile()
+    {
+        if (isAttached == true)
+        {
+            playerAnimator.Play("PlayerHoldingGun");
+        }
+
+        // Get mouse position in the world
+        Vector3 mousePosition =
+            Camera.main.ScreenToWorldPoint(
+                Input.mousePosition
+            );
+
+        mousePosition.z = transform.position.z;
+
+
+        // Calculate direction from player to mouse
+        Vector2 direction =
+            mousePosition - transform.position;
+
+
+        // Make sure we actually have a direction
+        if (direction == Vector2.zero)
+        {
+            return;
+        }
+
+
+        // Create projectile
+        GameObject projectile =
+            Instantiate(
+                rightProjectilePrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+
+        // Get projectile script
+        ProjectileScript projectileScript =
+            projectile.GetComponent<ProjectileScript>();
+
+
+        if (projectileScript != null)
+        {
+            projectileScript.SetDirection(direction);
+            //  playerAnimator.Play("PlayerHoldingGun");
+
+        }
+
+    }
 
     // ============================================================
     // ROPE CONTROLS
@@ -300,6 +345,20 @@ public class PlayerGreenScript : MonoBehaviour
         // ============================================================
         // SWING LEFT
         // ============================================================
+        if (Input.GetKey(KeyCode.A) && (Input.GetMouseButtonDown(0)) ||
+           Input.GetKey(KeyCode.LeftArrow) && (Input.GetMouseButtonDown(0)))
+        {
+            playerFacing = -1;
+            playerAnimator.Play("PlayerHoldingGun");
+            spriteRenderer.flipX = true;
+
+            rb.AddRelativeForce(
+                Vector2.left * ropeSwingForce
+            );
+
+            SwitchToLeftSide();
+        }
+
 
         if (Input.GetKey(KeyCode.A) ||
             Input.GetKey(KeyCode.LeftArrow))
@@ -319,6 +378,19 @@ public class PlayerGreenScript : MonoBehaviour
         // ============================================================
         // SWING RIGHT
         // ============================================================
+        if (Input.GetKey(KeyCode.D) && (Input.GetMouseButtonDown(0)) ||
+        Input.GetKey(KeyCode.RightArrow) && (Input.GetMouseButtonDown(0)))
+        {
+            playerFacing = 1;
+            playerAnimator.Play("PlayerHoldingGun");
+            spriteRenderer.flipX = false;
+            rb.AddRelativeForce(
+                Vector2.right * ropeSwingForce
+            );
+
+            SwitchToRightSide();
+        }
+
 
         if (Input.GetKey(KeyCode.D) ||
             Input.GetKey(KeyCode.RightArrow))
@@ -332,6 +404,7 @@ public class PlayerGreenScript : MonoBehaviour
 
             SwitchToRightSide();
         }
+
 
 
         // ============================================================
@@ -886,6 +959,23 @@ public class PlayerGreenScript : MonoBehaviour
                 .score += 1;
 
             Destroy(collision.gameObject);
+        }
+        if (collision.gameObject.tag == "Enemy")
+        {
+            Detach();
+            gameManagerObject.GetComponent<GameManagerScript>().RespawnPlayer();
+        }
+        if (collision.gameObject.tag == "Tripmine")
+        {
+            //Detach();
+            gameManagerObject.GetComponent<GameManagerScript>().RespawnPlayer();
+           // Destroy(collision.gameObject, 0.2f);
+        }
+        if (collision.gameObject.tag == "CheckPoint")
+        {
+            respawnPosition = collision.transform;
+            respawnPosition = gameManagerScript.respawner.transform;
+
         }
     }
 }

@@ -12,6 +12,8 @@ TagManager:
   - Selected
   - Rope
   - FinishFlag
+  - Tripmine
+  - CheckPoint
   layers:
   - Default
   - TransparentFX

@@ -10,19 +10,20 @@ public class GameManagerScript : MonoBehaviour
     public GameObject player;
     public Transform playerTransform;
     public Transform respawnPosition;
-
+    public Transform respawnFlagTransform;
     public bool isGameOver;
     public bool playerWon;
     public bool playerLost;
+    public GameObject respawner;
 
     // How far the player can fall before respawning
-    public float voidY = -10f;
+    public float voidY = -15f;
 
 
     // Start is called before the first frame update
     void Start()
     {
-
+        respawnPosition = respawner.transform;
     }
 
 
@@ -53,7 +54,7 @@ public class GameManagerScript : MonoBehaviour
             }
         }
     }
-    void RespawnPlayer()
+ public void RespawnPlayer()
     {
         if (playerTransform == null)
         {
@@ -87,4 +88,5 @@ public class GameManagerScript : MonoBehaviour
 
         Debug.Log("Player respawned!");
     }
+
 }
