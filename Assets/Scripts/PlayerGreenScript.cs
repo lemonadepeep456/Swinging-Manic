@@ -967,14 +967,14 @@ public class PlayerGreenScript : MonoBehaviour
         }
         if (collision.gameObject.tag == "Tripmine")
         {
-            //Detach();
+            Detach();
             gameManagerObject.GetComponent<GameManagerScript>().RespawnPlayer();
            // Destroy(collision.gameObject, 0.2f);
         }
         if (collision.gameObject.tag == "CheckPoint")
         {
             respawnPosition = collision.transform;
-            respawnPosition = gameManagerScript.respawner.transform;
+            respawnPosition = gameManagerScript.respawnPosition.transform;
 
         }
     }

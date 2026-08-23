@@ -14,7 +14,6 @@ public class GameManagerScript : MonoBehaviour
     public bool isGameOver;
     public bool playerWon;
     public bool playerLost;
-    public GameObject respawner;
 
     // How far the player can fall before respawning
     public float voidY = -15f;
@@ -23,7 +22,7 @@ public class GameManagerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        respawnPosition = respawner.transform;
+        
     }
 
 
@@ -78,7 +77,7 @@ public class GameManagerScript : MonoBehaviour
 
         if (playerRB != null)
         {
-            playerRB.velocity = Vector2.zero;
+            playerRB.linearVelocity = Vector2.zero;
         }
 
 
