@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class ProjectileScript : MonoBehaviour
@@ -7,6 +8,7 @@ public class ProjectileScript : MonoBehaviour
     public float speed = 10f;
     public int damage = 1;
     public EnemyScript enemy;
+    private float timer;
     private Vector2 direction;
 
     public void SetDirection(Vector2 newDirection)
@@ -22,6 +24,11 @@ public class ProjectileScript : MonoBehaviour
     {
         transform.position +=
             (Vector3)(direction * speed * Time.deltaTime);
+        timer += Time.deltaTime;
+        if (timer > 5)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -36,6 +43,10 @@ public class ProjectileScript : MonoBehaviour
             }
 
             Destroy(gameObject);
+        }
+        if (collision.CompareTag("Coconut"))
+        {
+            Destroy(collision.gameObject);
         }
     }
 }

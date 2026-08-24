@@ -750,7 +750,7 @@ public class PlayerGreenScript : MonoBehaviour
     // DETACH FROM ROPE
     // ============================================================
 
-    private void Detach()
+    public void Detach()
     {
         if (!isAttached)
         {

@@ -10,14 +10,41 @@ public class EnemyScript : MonoBehaviour
     public GameManagerScript gameManagerScript;
     public bool isAttacked;
     public Animator enemyAnimator;
+    public GameObject bullet;
+    public Transform bulletPos;
+    private float timer;
+    private GameObject player;
     public Rigidbody2D rb2D;
     public void Start()
     {
         enemyAnimator = GetComponent<Animator>();
-      //  rb2D = GetComponent<Rigidbody2D>();
+        player = GameObject.FindGameObjectWithTag("Player");
        
     }
-    
+     void Update()
+    {
+        
+
+        float distance = Vector2.Distance(transform.position, player.transform.position);
+       // Debug.Log(distance);
+        if(distance < 15)
+        {
+            timer += Time.deltaTime;
+
+            if (timer > 2)
+            {
+                timer = 0;
+                shoot();
+            }
+        }
+       
+
+    }
+    void shoot()
+    {
+        Instantiate(bullet, bulletPos.position,Quaternion.identity);
+    }
+
     public void TakeDamage(int damage)
     {
         health -= damage;
