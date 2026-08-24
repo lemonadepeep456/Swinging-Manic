@@ -41,7 +41,7 @@ void GenerateRope()
 
             if (ropeSegment != null)
             {
-                ropeSegment.hingeJoint = hj;
+                ropeSegment.hingeJoint2D = hj;
             }
 
             prevBod = newSeg.GetComponent<Rigidbody2D>();

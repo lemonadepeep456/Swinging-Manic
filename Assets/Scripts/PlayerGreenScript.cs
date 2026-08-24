@@ -36,7 +36,7 @@ public class PlayerGreenScript : MonoBehaviour
     // ============================================================
 
     public Rigidbody2D rb;
-    public new HingeJoint2D hingeJoint;
+    public HingeJoint2D hingeJoint2D;
 
     public float ropeSwingForce = 10f;
 
@@ -86,17 +86,17 @@ public class PlayerGreenScript : MonoBehaviour
 
 
         // Get HingeJoint2D
-        hingeJoint = GetComponent<HingeJoint2D>();
+        hingeJoint2D = GetComponent<HingeJoint2D>();
 
 
         // Make sure the hinge starts disabled
-        if (hingeJoint != null)
+        if (hingeJoint2D != null)
         {
-            hingeJoint.enabled = false;
+            hingeJoint2D.enabled = false;
 
-            hingeJoint.autoConfigureConnectedAnchor = false;
+            hingeJoint2D.autoConfigureConnectedAnchor = false;
 
-            hingeJoint.connectedAnchor = Vector2.zero;
+            hingeJoint2D.connectedAnchor = Vector2.zero;
         }
     }
 
@@ -451,8 +451,8 @@ public class PlayerGreenScript : MonoBehaviour
             return;
         }
 
-        if (hingeJoint == null ||
-            hingeJoint.connectedBody == null)
+        if (hingeJoint2D == null ||
+            hingeJoint2D.connectedBody == null)
         {
             return;
         }
@@ -460,7 +460,7 @@ public class PlayerGreenScript : MonoBehaviour
         currentHandHolder = leftHandHolder;
 
         Vector3 ropePosition =
-            hingeJoint.connectedBody.transform.position;
+            hingeJoint2D.connectedBody.transform.position;
 
         float distanceFromRope =
             Mathf.Abs(
@@ -484,7 +484,7 @@ public class PlayerGreenScript : MonoBehaviour
                 currentHandHolder.position
             );
 
-        hingeJoint.anchor =
+        hingeJoint2D.anchor =
             localHolderPosition;
     }
 
@@ -501,8 +501,8 @@ public class PlayerGreenScript : MonoBehaviour
             return;
         }
 
-        if (hingeJoint == null ||
-            hingeJoint.connectedBody == null)
+        if (hingeJoint2D == null ||
+            hingeJoint2D.connectedBody == null)
         {
             return;
         }
@@ -510,7 +510,7 @@ public class PlayerGreenScript : MonoBehaviour
         currentHandHolder = rightHandHolder;
 
         Vector3 ropePosition =
-            hingeJoint.connectedBody.transform.position;
+            hingeJoint2D.connectedBody.transform.position;
 
         float distanceFromRope =
             Mathf.Abs(
@@ -534,7 +534,7 @@ public class PlayerGreenScript : MonoBehaviour
                 currentHandHolder.position
             );
 
-        hingeJoint.anchor =
+        hingeJoint2D.anchor =
             localHolderPosition;
     }
 
@@ -649,7 +649,7 @@ public class PlayerGreenScript : MonoBehaviour
         // CONNECT PLAYER TO ROPE
         // ============================================================
 
-        hingeJoint.connectedBody = ropeBone;
+        hingeJoint2D.connectedBody = ropeBone;
 
 
         // ============================================================
@@ -661,14 +661,14 @@ public class PlayerGreenScript : MonoBehaviour
                 currentHandHolder.position
             );
 
-        hingeJoint.anchor = localHolderPosition;
+        hingeJoint2D.anchor = localHolderPosition;
 
 
         // ============================================================
         // ENABLE HINGE
         // ============================================================
 
-        hingeJoint.enabled = true;
+        hingeJoint2D.enabled = true;
 
 
         // Player is attached
@@ -733,11 +733,11 @@ public class PlayerGreenScript : MonoBehaviour
                 currentHandHolder.position
             );
 
-        hingeJoint.anchor = localHolderPosition;
+        hingeJoint2D.anchor = localHolderPosition;
 
 
         // Make sure the hinge stays connected
-        hingeJoint.enabled = true;
+        hingeJoint2D.enabled = true;
 
 
         Debug.Log(
@@ -760,7 +760,7 @@ public class PlayerGreenScript : MonoBehaviour
 
         // Get current rope segment
         Rigidbody2D connectedBody =
-            hingeJoint.connectedBody;
+            hingeJoint2D.connectedBody;
 
 
         if (connectedBody != null)
@@ -781,11 +781,11 @@ public class PlayerGreenScript : MonoBehaviour
 
 
         // Disable hinge
-        hingeJoint.enabled = false;
+        hingeJoint2D.enabled = false;
 
 
         // Remove connected body
-        hingeJoint.connectedBody = null;
+        hingeJoint2D.connectedBody = null;
 
 
         // Remove rope reference
@@ -819,89 +819,66 @@ public class PlayerGreenScript : MonoBehaviour
             return;
         }
 
-
-        if (hingeJoint.connectedBody == null)
+        if (hingeJoint2D == null ||
+            hingeJoint2D.connectedBody == null)
         {
             return;
         }
 
+        // Get the rope segment the player is currently attached to
+        RopeSegment currentSegment =
+            hingeJoint2D.connectedBody.GetComponent<RopeSegment>();
 
-        // Get current rope segment
-        RopeSegment myConnection =
-            hingeJoint.connectedBody
-            .GetComponent<RopeSegment>();
-
-
-        if (myConnection == null)
+        if (currentSegment == null)
         {
             return;
         }
-
 
         GameObject newSegment = null;
 
 
-        // ========================================================
+        // ============================================================
         // MOVE UP
-        // ========================================================
+        // ============================================================
 
         if (direction > 0)
         {
-            if (myConnection.hingeJoint != null &&
-                myConnection.hingeJoint.connectedBody != null)
+            if (currentSegment.connectedAbove != null)
             {
-                GameObject objectAbove =
-                    myConnection.hingeJoint
-                    .connectedBody
-                    .gameObject;
-
-
-                if (objectAbove.GetComponent<RopeSegment>() != null)
-                {
-                    newSegment = objectAbove;
-                }
+                newSegment = currentSegment.connectedAbove;
             }
         }
 
 
-        // ========================================================
+        // ============================================================
         // MOVE DOWN
-        // ========================================================
+        // ============================================================
 
         if (direction < 0)
         {
-            if (myConnection.hingeJoint != null &&
-                myConnection.hingeJoint.connectedBody != null)
+            if (currentSegment.connectedBelow != null)
             {
-                GameObject objectBelow =
-                    myConnection.hingeJoint
-                    .connectedBody
-                    .gameObject;
-
-
-                if (objectBelow.GetComponent<RopeSegment>() != null)
-                {
-                    newSegment = objectBelow;
-                }
+                newSegment = currentSegment.connectedBelow;
             }
         }
 
 
-        // No segment found
+        // ============================================================
+        // NO SEGMENT FOUND
+        // ============================================================
+
         if (newSegment == null)
         {
             return;
         }
 
 
-        // Old segment no longer has player
-        myConnection.isPlayerAttached = false;
+        // ============================================================
+        // GET NEW ROPE SEGMENT
+        // ============================================================
 
-
-        // Get new segment
         RopeSegment newRopeSegment =
             newSegment.GetComponent<RopeSegment>();
-
 
         if (newRopeSegment == null)
         {
@@ -909,11 +886,21 @@ public class PlayerGreenScript : MonoBehaviour
         }
 
 
-        // New segment has player
+        // ============================================================
+        // REMOVE PLAYER FROM OLD SEGMENT
+        // ============================================================
+
+        currentSegment.isPlayerAttached = false;
+
+
+        // ============================================================
+        // ATTACH PLAYER TO NEW SEGMENT
+        // ============================================================
+
         newRopeSegment.isPlayerAttached = true;
 
 
-        // Move player to new segment
+        // Move player to the new rope segment
         transform.position =
             newSegment.transform.position;
 
@@ -923,13 +910,16 @@ public class PlayerGreenScript : MonoBehaviour
             newSegment.GetComponent<Rigidbody2D>();
 
 
-        if (newBody != null)
+        if (newBody == null)
         {
-            hingeJoint.connectedBody =
-                newBody;
+            return;
         }
-    }
 
+
+        // Connect player to new segment
+        hingeJoint2D.connectedBody =
+            newBody;
+    }
 
     // ============================================================
     // COLLISIONS

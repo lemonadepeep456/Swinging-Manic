@@ -18,7 +18,7 @@ public class RopeSegment : MonoBehaviour
 
     public bool isPlayerAttached = false;
 
-    public HingeJoint2D hingeJoint;
+    public HingeJoint2D hingeJoint2D;
 
     public PlayerGreenScript player;
 
@@ -30,10 +30,10 @@ public class RopeSegment : MonoBehaviour
     void Start()
     {
         // Get this rope segment's hinge joint
-        hingeJoint = GetComponent<HingeJoint2D>();
+        hingeJoint2D = GetComponent<HingeJoint2D>();
 
         // Find the player
-        player = FindObjectOfType<PlayerGreenScript>();
+        player = FindFirstObjectByType<PlayerGreenScript>();
 
         ResetAnchor();
     }
@@ -46,13 +46,13 @@ public class RopeSegment : MonoBehaviour
     public void ResetAnchor()
     {
         // Get hinge if it hasn't been assigned yet
-        if (hingeJoint == null)
+        if (hingeJoint2D == null)
         {
-            hingeJoint = GetComponent<HingeJoint2D>();
+            hingeJoint2D = GetComponent<HingeJoint2D>();
         }
 
         // Make sure we actually have a hinge
-        if (hingeJoint == null)
+        if (hingeJoint2D == null)
         {
             Debug.LogWarning(
                 gameObject.name + " does not have a HingeJoint2D!"
@@ -63,11 +63,11 @@ public class RopeSegment : MonoBehaviour
 
 
         // Make sure the hinge has a connected body
-        if (hingeJoint.connectedBody == null)
+        if (hingeJoint2D.connectedBody == null)
         {
             connectedAbove = null;
 
-            hingeJoint.connectedAnchor = new Vector2(0, 0);
+            hingeJoint2D.connectedAnchor = new Vector2(0, 0);
 
             return;
         }
@@ -78,7 +78,7 @@ public class RopeSegment : MonoBehaviour
         // ========================================================
 
         connectedAbove =
-            hingeJoint.connectedBody.gameObject;
+            hingeJoint2D.connectedBody.gameObject;
 
 
         // Check if the object above is another rope segment
@@ -104,19 +104,19 @@ public class RopeSegment : MonoBehaviour
                     aboveSprite.bounds.size.y;
 
 
-                hingeJoint.connectedAnchor =
+                hingeJoint2D.connectedAnchor =
                     new Vector2(0, spriteBottom * -1);
             }
             else
             {
-                hingeJoint.connectedAnchor =
+                hingeJoint2D.connectedAnchor =
                     new Vector2(0, 0);
             }
         }
         else
         {
             // This is the top of the rope / connected to a hook
-            hingeJoint.connectedAnchor =
+            hingeJoint2D.connectedAnchor =
                 new Vector2(0, 0);
         }
     }
@@ -161,14 +161,14 @@ public class RopeSegment : MonoBehaviour
 
 
                 // Reconnect the segment below to the segment above
-                if (belowSegment.hingeJoint == null)
+                if (belowSegment.hingeJoint2D == null)
                 {
-                    belowSegment.hingeJoint =
+                    belowSegment.hingeJoint2D =
                         belowSegment.GetComponent<HingeJoint2D>();
                 }
 
 
-                if (belowSegment.hingeJoint != null)
+                if (belowSegment.hingeJoint2D != null)
                 {
                     Rigidbody2D aboveBody = null;
 
@@ -180,7 +180,7 @@ public class RopeSegment : MonoBehaviour
                     }
 
 
-                    belowSegment.hingeJoint.connectedBody =
+                    belowSegment.hingeJoint2D.connectedBody =
                         aboveBody;
 
 

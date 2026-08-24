@@ -7,7 +7,7 @@ public class PulleyController : MonoBehaviour
     // Start is called before the first frame update
 
     public Rigidbody2D rb;
-    private HingeJoint2D hj;
+    private HingeJoint2D hingeJoint2D;
     public GameObject pulleySelected;
     // Update is called once per frame
     void Awake()
